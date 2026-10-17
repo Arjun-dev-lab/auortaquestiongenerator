@@ -3,13 +3,11 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
 
-export default defineConfig(() => {
-  // Automatically configure base path for GitHub Pages:
-  // 1. If VITE_BASE_PATH is explicitly set (e.g. in .env or workflow), use it.
-  // 2. In GitHub Actions, GITHUB_REPOSITORY is automatically provided as 'owner/repo-name'.
-  // 3. Fallback to './' for portable relative asset links that work anywhere.
+export default defineConfig(({ command }) => {
+  // In development (dev server), ALWAYS use root '/' for absolute module resolution in iframes.
+  // In production build (for GitHub Pages), use repository subpath, VITE_BASE_PATH, or './'.
   const repoName = process.env.GITHUB_REPOSITORY ? process.env.GITHUB_REPOSITORY.split('/')[1] : '';
-  const base = process.env.VITE_BASE_PATH || (repoName ? `/${repoName}/` : './');
+  const base = command === 'serve' ? '/' : process.env.VITE_BASE_PATH || (repoName ? `/${repoName}/` : './');
 
   return {
     base,
