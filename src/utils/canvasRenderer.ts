@@ -297,10 +297,8 @@ function renderShortsQuestionLayout(
 
   // Fun Fact / Explanation banner during reveal phase
   if (isRevealPhase && question.explanation) {
-    const explainY = optStartY + 4 * (optH + optSpacing) + 12 * scale;
-    if (explainY + 60 * scale < height - 70 * scale) {
-      renderExplanationBanner(ctx, question.explanation, padX, explainY, cardW, 58 * scale, theme, scale);
-    }
+    const explainY = optStartY + 4 * (optH + optSpacing) + 16 * scale;
+    renderExplanationBanner(ctx, question.explanation, padX, explainY, cardW, theme, scale, true);
   }
 
   // Bottom Auorta Learning App Promotion Ticker
@@ -406,9 +404,7 @@ function renderNormalQuestionLayout(
   // Explanation Banner below 2x2 grid during reveal
   if (isRevealPhase && question.explanation) {
     const explainY = optGridStartY + (optH * 2) + gridGapY + 12 * scale;
-    if (explainY + 50 * scale < height - 50 * scale) {
-      renderExplanationBanner(ctx, question.explanation, padX, explainY, cardW, 48 * scale, theme, scale);
-    }
+    renderExplanationBanner(ctx, question.explanation, padX, explainY, cardW, theme, scale, false);
   }
 
   // Bottom Auorta Learning App Promotion Ticker
@@ -551,36 +547,97 @@ function renderOptionButton(
   ctx.restore();
 }
 
-// Explanation banner renderer
+function getWrappedLines(
+  ctx: CanvasRenderingContext,
+  text: string,
+  maxWidth: number
+): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = words[0] || '';
+
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const testLine = currentLine + ' ' + word;
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width <= maxWidth) {
+      currentLine = testLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  return lines;
+}
+
+// Multi-line Explanation / Fact Card renderer
 function renderExplanationBanner(
   ctx: CanvasRenderingContext,
   text: string,
   x: number,
   y: number,
   w: number,
-  h: number,
   theme: any,
-  scale: number
+  scale: number,
+  isPortrait: boolean
 ) {
   ctx.save();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-  drawRoundedRect(ctx, x, y, w, h, 12 * scale);
+  const fontSize = Math.round((isPortrait ? 18 : 17) * scale);
+  const lineHeight = Math.round((isPortrait ? 26 : 24) * scale);
+  const padInnerX = 22 * scale;
+  const maxTextW = w - padInnerX * 2;
+
+  ctx.font = `600 ${fontSize}px sans-serif`;
+  const lines = getWrappedLines(ctx, text, maxTextW);
+
+  // Card dimensions based on lines of text
+  const badgeH = 24 * scale;
+  const textH = lines.length * lineHeight;
+  const totalH = 16 * scale + badgeH + 10 * scale + textH + 14 * scale;
+
+  // Glassmorphic Card Background with high contrast
+  ctx.fillStyle = 'rgba(10, 15, 30, 0.94)';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+  ctx.shadowBlur = 20 * scale;
+  ctx.shadowOffsetY = 8 * scale;
+  drawRoundedRect(ctx, x, y, w, totalH, 18 * scale);
   ctx.fill();
 
-  ctx.lineWidth = 1 * scale;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  drawRoundedRect(ctx, x, y, w, h, 12 * scale);
+  ctx.shadowColor = 'transparent';
+  ctx.lineWidth = 1.8 * scale;
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)'; // Vibrant cyan / sky accent glow
+  drawRoundedRect(ctx, x, y, w, totalH, 18 * scale);
   ctx.stroke();
 
-  ctx.fillStyle = theme.accentColor;
-  ctx.font = `800 ${Math.round(12 * scale)}px sans-serif`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('KEY FACT', x + 16 * scale, y + h / 2);
+  // Header Badge: "💡 DID YOU KNOW?"
+  const badgeW = 150 * scale;
+  const badgeX = x + padInnerX;
+  const badgeY = y + 14 * scale;
 
-  ctx.fillStyle = '#ffffff';
-  ctx.font = `500 ${Math.round(14 * scale)}px sans-serif`;
-  ctx.fillText(text, x + 88 * scale, y + h / 2, w - 105 * scale);
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+  drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = `800 ${Math.round(12 * scale)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('💡 DID YOU KNOW?', badgeX + badgeW / 2, badgeY + badgeH / 2);
+
+  // Render multi-line fact text with full, bold, high-contrast typography (NO horizontal squishing)
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = `600 ${fontSize}px sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  const textStartY = badgeY + badgeH + 10 * scale;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, x + padInnerX, textStartY + i * lineHeight);
+  });
+
   ctx.restore();
 }
 
