@@ -1,0 +1,6 @@
+{
+  "name": "QuizCraft - Offline MP4 Quiz Video Creator",
+  "description": "Create engaging vertical or horizontal quiz videos with countdowns, reveals, procedural sound effects, and export real offline MP4 files.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
