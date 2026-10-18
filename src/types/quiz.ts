@@ -1,10 +1,16 @@
 export interface QuizQuestion {
   id: string;
   question: string;
+  statements?: string[]; // Optional statement lines (e.g. ["1. Statement one", "2. Statement two"])
+  questionFooter?: string; // Optional question closing prompt (e.g. "Which of the statements given above are correct?")
   options: [string, string, string, string]; // Exactly 4 options
   correctIndex: number; // 0, 1, 2, or 3
-  explanation?: string;
+  explanation?: string; // Solution or fact text
+  explanationLabel?: string; // e.g. "Solution", "Step-by-Step Solution", "Explanation", "Key Fact"
   category?: string;
+  readingDuration?: number; // Custom seconds to read question & options before timer countdown starts
+  audioUrl?: string; // Custom recorded microphone audio or uploaded MP3 for 100% natural voice
+  audioDuration?: number; // Duration of custom audio in seconds
 }
 
 export type QuizTheme = 'neon-cyber' | 'sunset-pop' | 'trivia-royale' | 'emerald-quiz' | 'midnight-violet';
@@ -38,13 +44,31 @@ export interface PromoConfig {
   showInFinalScreen: boolean; // Show card on final screen
 }
 
+export type VoiceLanguage = 'auto' | 'en' | 'ml';
+
+export interface VoiceOverConfig {
+  enabled: boolean;
+  language: VoiceLanguage; // 'auto' | 'en' | 'ml'
+  voiceURI?: string; // specific voice chosen by user
+  rate: number; // 0.8 to 1.3 (default 1.0)
+  pitch: number; // 0.8 to 1.2 (default 1.0)
+  volume: number; // 0 to 1 (default 1.0)
+  readQuestion: boolean; // default true
+  readStatements: boolean; // default true
+  readOptions: boolean; // default true
+  announceAnswerOnReveal: boolean; // default true
+  readExplanation: boolean; // default true
+  syncWithVideoTimer?: boolean; // Timer begins ONLY when voice finishes
+}
+
 export interface QuizConfig {
   title: string;
   theme: QuizTheme;
   aspectRatio: '9:16' | '16:9';
-  countdownDuration: number; // seconds per question countdown (e.g. 3.0)
-  revealDuration: number; // seconds per question answer reveal (e.g. 2.0)
-  finalScreenDuration: number; // seconds for final screen (e.g. 3.0)
+  readingDuration?: number; // seconds to read question & options before countdown timer starts (default 4.5s)
+  countdownDuration: number; // seconds for countdown timer AFTER reading is over (e.g. 4.0s)
+  revealDuration: number; // seconds for answer reveal & announcement (e.g. 2.5s)
+  finalScreenDuration: number; // seconds for final screen (e.g. 3.0s)
   enableBgm: boolean;
   bgmVolume: number; // 0 to 1
   enableSfx: boolean;
@@ -52,6 +76,7 @@ export interface QuizConfig {
   fps: number; // 30
   questions: QuizQuestion[];
   promo?: PromoConfig;
+  voiceOver?: VoiceOverConfig;
 }
 
 export interface ExportProgress {

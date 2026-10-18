@@ -5,7 +5,7 @@ import { QuizConfig } from '../types/quiz';
  * 100% offline, zero external audio assets, zero CDN dependencies.
  */
 
-// Helper to calculate question timeline milestones
+// Helper to calculate question timeline milestones with Sequenced Timing
 export function getTimelineEvents(quiz: QuizConfig) {
   const events: {
     type: 'tick' | 'riser' | 'reveal' | 'final';
@@ -14,19 +14,22 @@ export function getTimelineEvents(quiz: QuizConfig) {
   }[] = [];
 
   let currentTime = 0;
-  quiz.questions.forEach((_q, index) => {
-    // Countdown ticks (e.g. for a 3s countdown, ticks at t = 0, 1, 2)
+  quiz.questions.forEach((q, index) => {
+    const qReading = q.readingDuration ?? quiz.readingDuration ?? 4.5;
+    const countdownStart = currentTime + qReading;
+
+    // Countdown ticks happen ONLY after reading is over!
     const count = Math.floor(quiz.countdownDuration);
     for (let i = 0; i < count; i++) {
       events.push({
         type: 'tick',
-        time: currentTime + i,
+        time: countdownStart + i,
         questionIndex: index,
       });
     }
 
-    // Tension riser during the last 1.2s of countdown
-    const riserTime = Math.max(0, currentTime + quiz.countdownDuration - 1.2);
+    // Tension riser during the countdown
+    const riserTime = Math.max(countdownStart, countdownStart + quiz.countdownDuration - 1.2);
     events.push({
       type: 'riser',
       time: riserTime,
@@ -34,14 +37,14 @@ export function getTimelineEvents(quiz: QuizConfig) {
     });
 
     // Reveal sound at countdown end
-    const revealTime = currentTime + quiz.countdownDuration;
+    const revealTime = countdownStart + quiz.countdownDuration;
     events.push({
       type: 'reveal',
       time: revealTime,
       questionIndex: index,
     });
 
-    currentTime += quiz.countdownDuration + quiz.revealDuration;
+    currentTime += qReading + quiz.countdownDuration + quiz.revealDuration;
   });
 
   // Final screen celebratory fanfare

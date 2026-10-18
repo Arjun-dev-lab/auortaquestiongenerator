@@ -1,7 +1,7 @@
 import { ArrayBufferTarget, Muxer } from 'mp4-muxer';
 import { ExportProgress, Mp4ValidationResult, QuizConfig } from '../types/quiz';
 import { synthesizeQuizAudioBuffer } from './audioSynth';
-import { renderQuizFrame } from './canvasRenderer';
+import { calculateQuizTotalDuration, renderQuizFrame } from './canvasRenderer';
 import { parseAndValidateMp4 } from './mp4Parser';
 
 export interface ExportOptions {
@@ -55,9 +55,8 @@ export async function exportQuizToMp4(options: ExportOptions): Promise<ExportRes
   const height = isPortrait ? 1280 : 720;
   const fps = quiz.fps || 30;
 
-  // Total duration calculation
-  const totalDuration =
-    quiz.questions.length * (quiz.countdownDuration + quiz.revealDuration) + quiz.finalScreenDuration;
+  // Total duration calculation with Sequenced Timing
+  const totalDuration = calculateQuizTotalDuration(quiz);
   const totalFrames = Math.max(1, Math.round(totalDuration * fps));
 
   onProgress?.({

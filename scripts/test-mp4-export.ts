@@ -3,7 +3,7 @@ import path from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
 import HME from 'h264-mp4-encoder';
 import { QuizConfig } from '../src/types/quiz.ts';
-import { renderQuizFrame } from '../src/utils/canvasRenderer.ts';
+import { calculateQuizTotalDuration, renderQuizFrame } from '../src/utils/canvasRenderer.ts';
 import { parseAndValidateMp4 } from '../src/utils/mp4Parser.ts';
 
 async function runTwoQuestionQuizTest() {
@@ -11,14 +11,15 @@ async function runTwoQuestionQuizTest() {
   console.log('       OFFLINE MP4 EXPORT VERIFICATION TEST');
   console.log('===============================================================\n');
 
-  // 1. Configure a 2-question quiz with short countdowns, reveals, and final screen
+  // 1. Configure a 4-question quiz with short reading, countdowns, reveals, and final screen
   const testQuiz: QuizConfig = {
     title: 'Exam Trivia & GK Challenge',
     theme: 'neon-cyber',
     aspectRatio: '9:16',
-    countdownDuration: 1.5, // 1.5s countdown for fast test
-    revealDuration: 1.0,    // 1.0s reveal
-    finalScreenDuration: 2.0, // 2s final screen
+    readingDuration: 0.5, // 0.5s reading phase for fast unit test
+    countdownDuration: 1.0, // 1.0s countdown for fast test
+    revealDuration: 0.8,    // 0.8s reveal
+    finalScreenDuration: 1.5, // 1.5s final screen
     enableBgm: true,
     bgmVolume: 0.3,
     enableSfx: true,
@@ -70,9 +71,7 @@ async function runTwoQuestionQuizTest() {
     },
   };
 
-  const totalDuration =
-    testQuiz.questions.length * (testQuiz.countdownDuration + testQuiz.revealDuration) +
-    testQuiz.finalScreenDuration;
+  const totalDuration = calculateQuizTotalDuration(testQuiz);
   const totalFrames = Math.round(totalDuration * testQuiz.fps);
   const width = 720;
   const height = 1280;

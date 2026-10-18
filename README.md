@@ -1,8 +1,79 @@
 # QuizCraft MP4 - Offline Quiz Video Creator
 
-A high-performance, client-side web application to create, preview, and export vertical (9:16 YouTube Shorts) and horizontal (16:9 widescreen) trivia quiz videos with procedural audio, countdown timers, answer reveals, and promotional branding.
+A high-performance, client-side web application to create, preview, and export vertical (9:16 YouTube Shorts) and horizontal (16:9 widescreen) trivia and exam quiz videos with procedural audio, countdown timers, answer reveals, and promotional branding.
 
 The application runs **100% in the browser** as a static website. It uses the WebCodecs API and embedded WebAssembly H.264 video encoding to generate genuine ISO Base Media File Format MP4 videos (`video/mp4`) without requiring any backend server or external CDN dependencies.
+
+---
+
+## ✨ Features
+
+- **Auorta Learning Quiz Challenge Preset**: Pre-configured with educational branding, bottom tickers, and final-screen spotlight cards for Google Play mock tests and solved previous year questions (PYQs).
+- **Statement-Type Question Support**: Supports questions with numbered statements (e.g., Statement 1, Statement 2, Statement 3) and closing prompts (e.g., *"Which of the statements given above are correct?"*), complete with adaptive card heights and safe zones for YouTube Shorts and 16:9 widescreen.
+- **Customizable Solution & Fact Cards**: Custom labels (e.g., *"Solution"*, *"Step-by-Step Solution"*, *"Maths Solution"*, *"Key Fact"*, *"Explanation"*) and multi-line step-by-step proofs with comfortable, high-contrast typography that never squishes or shrinks.
+- **JSON Import & Paste Feature**: Paste full quiz JSON or arrays of questions directly into the app with one click to populate questions, statements, options, answers, and solutions. Includes quick copyable templates and current-quiz JSON export.
+- **Mobile-Friendly Responsive UI**: Fully optimized layout for smartphones and tablets with touch-friendly controls, quick question editor, scene selector, and view modes (*Split*, *Canvas*, *Editor*).
+- **Genuine Offline MP4 Export**: Generates true ISO BMFF MP4 bitstreams with real-time progress indicators, frame counter, and deep atom diagnostics (`ftyp`, `moov`, `mdat`).
+
+---
+
+## 📋 JSON Format Specification
+
+You can click **"Import / Paste JSON"** in the app header or editor to load any quiz using the following flexible schema:
+
+```json
+{
+  "title": "Auorta Learning Quiz Challenge",
+  "questions": [
+    {
+      "question": "Consider the following statements regarding the Solar System:",
+      "statements": [
+        "1. Saturn has the highest number of confirmed moons (146 moons).",
+        "2. Jupiter is the largest planet by mass and volume.",
+        "3. Venus has the highest average surface temperature."
+      ],
+      "questionFooter": "Which of the statements given above are correct?",
+      "options": [
+        "1 and 2 only",
+        "2 and 3 only",
+        "1 and 3 only",
+        "1, 2, and 3"
+      ],
+      "answer": "D",
+      "explanationLabel": "Solution",
+      "explanation": "All three statements are correct! Saturn currently has 146 confirmed moons, and Venus reaches ~465°C due to extreme greenhouse effect.",
+      "category": "Astronomy"
+    },
+    {
+      "question": "Find the value of x in the linear equation: 3x - 7 = 2(x + 4)",
+      "options": ["x = 11", "x = 15", "x = 18", "x = 22"],
+      "answer": "B",
+      "explanationLabel": "Maths Solution",
+      "explanation": "Step 1: Expand right side: 3x - 7 = 2x + 8\nStep 2: Subtract 2x from both sides: x - 7 = 8\nStep 3: Add 7: x = 15\nTherefore, Option B (x = 15) is correct.",
+      "category": "Mathematics"
+    }
+  ]
+}
+```
+
+*Note: Answers can be specified as letters (`"A"`, `"B"`, `"C"`, `"D"`) or zero-based indices (`0, 1, 2, 3`). Statements are optional—standard questions without statements are supported seamlessly.*
+
+---
+
+## 🎙️ Strict Sequenced Timing & Natural Human Voice-Over
+
+The application features an intelligent client-side narration and timing engine designed for professional educational and exam videos:
+
+1. **Strict Sequenced Timing**:
+   - **Phase 1 (Reading Phase)**: The voice reads the question prompt, statements, and 4 options. **The timer DOES NOT interrupt the voice** and holds steady at full duration showing a sky-blue `LISTEN` pulse.
+   - **Phase 2 (Countdown Phase)**: **ONLY AFTER the voice finishes speaking**, the countdown timer starts ticking down (e.g. `4... 3... 2... 1... 0`) with synchronized woodblock tick sound effects.
+   - **Phase 3 (Reveal Phase)**: When the countdown reaches zero, the correct option highlights in vibrant emerald green, fanfare chimes play, and the voice announces the correct answer (`"The correct answer is Option B: ..."` or in Malayalam `"ശരിയായ ഉത്തരം, ഓപ്ഷൻ ബി: ..."`) followed by the step-by-step solution.
+
+2. **Ultra-Natural Neural Voices (Zero Robot Tone)**:
+   - **Microsoft Edge**: Provides free, broadcast-quality Online Natural Neural voices (such as *Microsoft Midhun / Sobhana Natural* for Malayalam, and *Microsoft Jenny / Guy Natural* for English).
+   - **Google Chrome**: Features *Google മലയാളം* and *Google US/UK English*.
+   - **Neural Fidelity Protection**: Speech pitch is preserved strictly at `1.0` so modern browser neural models are never downgraded to offline robotic fallbacks.
+   - **In-Browser Microphone Studio**: If creators prefer their own authentic human voice, a 1-click in-browser recorder allows recording custom narration directly for any question.
 
 ---
 
